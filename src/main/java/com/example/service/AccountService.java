@@ -7,94 +7,63 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * Service class to handle operations related to user accounts. 
+ */
 @Service
 public class AccountService
 {
     @Autowired
     private AccountRepository accountRepository;
-
     
+    /**
+     * Retrieves all accounts from the repository.
+     * 
+     * @return A list of all accounts.
+     */
     public List<Account> getAllAccounts()
     {
         return accountRepository.findAll();
     }
 
+    /**
+     * Retrieves an account by username.
+     * 
+     * @param username The username of the account to retrieve.
+     * @return The account given by the username, or null if not found.
+     */
+    public Account getAccountByUsername(String username) 
+    {
+        return accountRepository.findByUsername(username);
+    }
 
-    
-    // public Account registerAccount(Account account)
-    // {
-    //     // Validate the account
-    //     validateAccount(account); 
+    /**
+     * Saves an account to the repository.
+     * 
+     * @param account The account to save.
+     * @return The saved account.
+     */
+    public Account saveAccount(Account account) 
+    {
+        return accountRepository.save(account);
+    }
 
-    //     // Check if account already exists by username
-    //     Account searchedAccount = getAccountByUsername(account.getUsername());
-    //     if(searchedAccount != null)
-    //     {
-    //         throw new RuntimeException("Account already exists.");
-    //     }
+    /**
+     * Authenticates an account based on username and password.
+     * 
+     * @param account The account to authenticate.
+     * @return The account if successfully authenticated, or null if username or password is incorrect.
+     */
+    public Account authenticate(Account account) 
+    {
+        String username = account.getUsername();
+        String password = account.getPassword();
 
-    //     // Insert new account into the database
-    //     Account newAccount = accountDao.insertAccount(account);
-    //     return newAccount;
-    // }
-    
-    
-    // public Account authenticate(Account account)
-    // {
-    //     String username = account.getUsername().trim();
-    //     String password = account.getPassword().trim();
-
-    //     Account retrievedAccount = getAccountByUsername(username);
-    //     if(retrievedAccount != null && retrievedAccount.getPassword().equals(password))
-    //     {
-    //         return retrievedAccount;
-    //     }
-    //     return null;
-    // }
-    
-    
-    // private Account getAccountByUsername(String username)
-    // {
-    //     return accountRepository.findByUsername(username);   
-    // }
-   
-    
-    // private void validateAccount(Account account)
-    // {
-    //     String username = account.getUsername();
-    //     String password = account.getPassword();
-    //     boolean usernameExisted = false;
-
-    //     // Check if username is empty
-    //     if(username.isEmpty())
-    //     {
-    //         throw new IllegalArgumentException("Username cannot be empty.");
-    //     }
-
-    //     // Check if password is empty
-    //     if(password.isEmpty())    
-    //     {
-    //         throw new IllegalArgumentException("Password cannot be empty.");
-    //     }
-
-    //     // Check if password is at least 4 characters
-    //     if(password.length() < 4)
-    //     {
-    //         throw new IllegalArgumentException("Password must be at least 4 characters.");
-    //     }
-        
-    //     // Check if username already exists
-    //     usernameExisted = accountRepository.existsById(null).alreadyExist(account.getUsername());
-    //     if(usernameExisted)
-    //     {
-    //         throw new RuntimeException("Username is already existed.");
-    //     }
-    // }
-  
-
-    // public Account getAccountByAccountId(int posted_by)
-    // {
-    //     Account account = accountDao.getAccountByAccountId(posted_by);    
-    //     return account;
-    // }
+        Account retrievedAccount = getAccountByUsername(username);
+        if(retrievedAccount != null && retrievedAccount.getPassword().equals(password))
+        {
+            return retrievedAccount;
+        }
+        return null;
+    }
 }

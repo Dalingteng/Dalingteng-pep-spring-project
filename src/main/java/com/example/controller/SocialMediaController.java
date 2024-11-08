@@ -7,11 +7,7 @@ import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +16,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import java.util.List;
 
+/**
+ * Controller class to manage accounts and messages.
+ */
 @RestController
 public class SocialMediaController 
 {
@@ -36,16 +36,53 @@ public class SocialMediaController
     @Autowired
     private AccountRepository messageRepository;
 
-    // register
-    // login
-    // create message
-    // get all message
-    // get message by id
-    // delete message by id
-    // update message by id
-    // get message by user
+
+    /**
+     * Registers a new user account.
+     * 
+     * @param account The account to register.
+     * @return ResponseEntity with status 200 if the registration is successful
+     *         or status 409 (CONFLICT) if the account already exists.
+     */
+    @PostMapping("/register")
+    public ResponseEntity<Account> registerUser(@RequestBody Account account)
+    {
+        Account existedAccount = accountService.getAccountByUsername(account.getUsername());
+        if(existedAccount != null)
+        {
+            return ResponseEntity.status(409).build(); // 409 - CONFLICT
+        }
+        Account newAccount = accountService.saveAccount(account);
+        return ResponseEntity.ok(newAccount);
+
+    }
+
+    /**
+     * Logs in a user by authenticating their credentials
+     * 
+     * @param account The account to authenticate.
+     * @return ResponseEntity with status 200 if the authentication is successful
+     *         or status 401 (UNAUTHORIZED) if the authentication fails.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<Account> loginUser(@RequestBody Account account)
+    {
+        // Authenticate the account
+        Account loginAccount = accountService.authenticate(account);
+        if(loginAccount == null)
+        {
+            return ResponseEntity.status(401).build(); // 401 - UNAUTHORIZED
+        }
+        return ResponseEntity.ok(loginAccount);
+    }
     
-    // ###3
+    /**
+     * Creates a new message.
+     * 
+     * @param message The message to create.
+     * @return ResponseEntity with status 200 if the creation of message is successful
+     *         or status 400 (BAD_REQUEST) if the message is invalid.
+     */
     @PostMapping("/messages")
     public ResponseEntity<Message> createMessage(@RequestBody Message message)
     {
@@ -62,7 +99,13 @@ public class SocialMediaController
         Message newMessage = messageService.createMessage(message);
         return ResponseEntity.ok(newMessage);
     }
-    // ###4
+    
+    /**
+     * Retrieves all messages.
+     * 
+     * @return ResponseEntity with status 200 and a list of messages
+     *         or status 200 with no content if there is no message.
+     */
     @GetMapping("/messages")
     public ResponseEntity<List<Message>> getAllMessages()
     {
@@ -74,7 +117,13 @@ public class SocialMediaController
         return ResponseEntity.ok(messages);
     }
 
-    // ###5
+     /**
+     * Retrieves a message by a message ID.
+     * 
+     * @param messageId The ID of the message to retrieve.
+     * @return ResponseEntity with status 200 and the message if found
+     *         or status 200 with no content if the message is not found.
+     */
     @GetMapping("/messages/{messageId}")
     public ResponseEntity<Message> getMessageById(@PathVariable Integer messageId)
     {
@@ -86,7 +135,13 @@ public class SocialMediaController
         return ResponseEntity.ok(message);
     }
 
-    // ###6
+    /**
+     * Deletes a message by a message ID.
+     * 
+     * @param messageId The ID of the message to delete.
+     * @return ResponseEntity with status 200 and the number of rows deleted
+     *         or status 200 with no content if no message is deleted.
+     */
     @DeleteMapping("/messages/{messageId}")
     public ResponseEntity<Integer> deleteMessageById(@PathVariable Integer messageId)
     {
@@ -99,8 +154,13 @@ public class SocialMediaController
         return ResponseEntity.ok(rowsDeleted);
     }
 
-
-    // ###7
+    /**
+     * Updates an existing message by a message ID.
+     * 
+     * @param messageId The ID of the message to update.
+     * @return ResponseEntity with status 200 if the update of the message is successful
+     *         or status 400 (BAD_REQUEST) if the message is invalid or not found.
+     */
     @PatchMapping("/messages/{messageId}")
     public ResponseEntity<?> updateMessageById(@PathVariable Integer messageId, @RequestBody Message message)
     {
@@ -117,7 +177,13 @@ public class SocialMediaController
         return ResponseEntity.ok(1);
     }
 
-    // ###8
+    /**
+     * Retrieves all messages posted by a specific user.
+     * 
+     * @param accountId The ID of the account whose messages are to be retrieved.
+     * @return ResponseEntity with status 200 and a list of messages for the user
+     *         or status 200 with no content if there is no message.
+     */
     @GetMapping("/accounts/{accountId}/messages")
     public ResponseEntity<List<Message>> getAllMessagesByUser(@PathVariable Integer accountId)
     {
